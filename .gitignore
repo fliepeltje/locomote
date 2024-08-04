@@ -3,3 +3,4 @@
 __pycache__/
 hack.py
 .output/
+.input/
