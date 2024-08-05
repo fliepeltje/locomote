@@ -44,7 +44,9 @@ locomote config.example.toml my-file-diff
 
 
 [![Diff Clip 1](examples/my-file-diff/000-add-makedirs-head.png)](https://github.com/user-attachments/assets/6f181ddd-ea22-472a-90de-616d6b519ef4)
+
 [![Diff Clip 2](examples/my-file-diff/001-add-os-iter-head.png)](https://github.com/user-attachments/assets/a2098774-7d70-4fe5-a12c-83c2aa85fcaa)
+
 [![Diff Clip 3](examples/my-file-diff/002-add-pathlib-head.png)](https://github.com/user-attachments/assets/8d1a5ab1-2c22-4df5-b69a-4162c882c1df)
 
 
