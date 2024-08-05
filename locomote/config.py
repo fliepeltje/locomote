@@ -50,16 +50,31 @@ class FileConfig:
     def file(self) -> str:
         return self.src
 
+@dataclass
+class CmdConfig:
+    cmd: str
+    logfile: str
+    lang: str = "bash"
+    host_line: str | None = None
+    logline_display: int = 15
+
+    @property
+    def file(self):
+        return None
 
 @dataclass
 class Config:
     output: OutputConfig
-    diff: DiffConfig | None
-    file: FileConfig | None
+    diff: DiffConfig | None = None
+    file: FileConfig | None = None
+    cmd: CmdConfig | None = None
 
     @property
     def input(self) -> DiffConfig | FileConfig:
-        return self.diff if self.diff else self.file
+        configs = [x for x in [self.diff, self.file, self.cmd] if x]
+        if len(configs) != 1:
+            raise ValueError("Exactly config must be provided")
+        return configs[0]
 
     @classmethod
     def from_toml(cls, cfg: Path) -> dict[str, "Config"]:

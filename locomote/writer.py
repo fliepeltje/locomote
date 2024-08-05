@@ -10,6 +10,7 @@ class CodeBlockFormatter(ImageFormatter):
         height: int,
         padding: int = 10,
         filename: str | None = None,
+        window_control: bool = True,
         **options,
     ):
         super().__init__(**options)
@@ -17,6 +18,7 @@ class CodeBlockFormatter(ImageFormatter):
         self.height = height
         self.padding = padding
         self.filename = filename
+        self.window_control = window_control
 
     def _draw_code_highlights(self, draw: ImageDraw):
         if self.hl_lines:
@@ -61,28 +63,22 @@ class CodeBlockFormatter(ImageFormatter):
             )
 
     def _draw_window_ctl(self, draw: ImageDraw):
-        draw.ellipse(
-            [(10, 10), (20, 20)],
-            fill="#FF605C",  # Use RGB values for red color
-        )
-        draw.ellipse(
-            [(25, 10), (35, 20)],
-            fill="#FFBD44",  # Use RGB values for yellow color
-        )
-        draw.ellipse(
-            [(40, 10), (50, 20)],
-            fill="#00CA4E",  # Use RGB values for green color
-        )
-        draw.line([(0, 35), (self.width, 35)], fill=(128, 128, 128, 50))
+        if self.window_control:
+            draw.ellipse(
+                [(10, 10), (20, 20)],
+                fill="#FF605C",  # Use RGB values for red color
+            )
+            draw.ellipse(
+                [(25, 10), (35, 20)],
+                fill="#FFBD44",  # Use RGB values for yellow color
+            )
+            draw.ellipse(
+                [(40, 10), (50, 20)],
+                fill="#00CA4E",  # Use RGB values for green color
+            )
+            draw.line([(0, 35), (self.width, 35)], fill=(128, 128, 128, 50))
 
     def format(self, tokensource, outfile):
-        """
-        Format ``tokensource``, an iterable of ``(tokentype, tokenstring)``
-        tuples and write it into ``outfile``.
-
-        This implementation calculates where it should draw each token on the
-        pixmap, then calculates the required pixmap size and draws the items.
-        """
         self._create_drawables(tokensource)
         self._draw_line_numbers()
         im = Image.new(

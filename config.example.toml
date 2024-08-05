@@ -4,3 +4,12 @@ output.pil.height = 300
 output.pil.font_size = 16
 output.path = "my-file-clip"
 diff.file = "my-file.py"
+
+[fly-apps-list]
+cmd.cmd = "fly apps list"
+cmd.logfile = "example.log"
+cmd.host_line = "donatas@fly ~"
+output.path = "fly-apps-list"
+output.pil.width = 700
+output.pil.height = 300
+output.pil.font_size = 16

@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from git import Repo, Commit
 from pygments.lexers import get_lexer_by_name, get_lexer_for_filename
 from pygments import highlight
-from locomote.config import Config
-from locomote.writer import CodeBlockFormatter, pyg_writer
+from locomote.config import Config, DiffConfig, CmdConfig, FileConfig
+from locomote.writer import CodeBlockFormatter
 from moviepy.video.io import ImageSequenceClip
 from locomote.parser import Segment
 from pathlib import Path
@@ -26,6 +26,27 @@ def generate_text_iter(from_text: str, to_text: str) -> Iterator[str]:
         from_text = mod(from_text)
         yield from_text
     yield to_text
+
+
+
+def generate_cmd_iter(
+        cmd: str, 
+        cmd_log: str, 
+        line_display: int = 15,
+        host_line: str | None = None
+    ):
+    seq_a = f"{host_line} " if host_line else ""
+    seq_b = f"{host_line} {cmd}" if host_line else cmd
+    yield seq_a
+    yield from generate_text_iter(seq_a, seq_b)
+    prefix = seq_b + "\n\n"
+    yield prefix
+    content = []
+    for line in cmd_log.split("\n"):
+        content.append(line)
+        text = "\n".join(content[-line_display:])
+        yield prefix + text
+    yield prefix +  "\n".join(content[-line_display:])
 
 
 @dataclass
@@ -78,6 +99,7 @@ def formatter_from_cfg(cfg: Config) -> CodeBlockFormatter:
 
 
 def create_temporary_assets(tmp_dir: Path, seq_iter: Iterator[str], cfg: Config):
+    logger.info(f"Creating temporary assets in {tmp_dir}")
     if not tmp_dir.exists():
         tmp_dir.mkdir(parents=True)
     lex = (
@@ -93,24 +115,24 @@ def create_temporary_assets(tmp_dir: Path, seq_iter: Iterator[str], cfg: Config)
 def process_output(cfg: Config, pngs: list[Path], out: Path, prefix: str = ""):
     assets = sorted(pngs)
     if cfg.output.assets.clip:
+        logger.info(f"Creating clip")
         clip_out = out / f"{prefix}-clip.mp4" if prefix else out / "clip.mp4"
         clip = ImageSequenceClip.ImageSequenceClip([str(x) for x in assets], fps=12)
         clip.write_videofile(str(clip_out), logger=None)
     if cfg.output.assets.head_img:
+        logger.info(f"Creating head image")
         assets[0].rename(out / f"{prefix}-head.png" if prefix else out / "head.png")
     if cfg.output.assets.tail_img:
+        logger.info(f"Creating tail image")
         assets[-1].rename(out / f"{prefix}-tail.png" if prefix else out / "tail.png")
+    
 
 
 def exec_config(cfg: Config):
-    if not cfg.diff and not cfg.file:
-        raise ValueError("No diff or file config provided, specify one")
-    if cfg.diff and cfg.file:
-        raise ValueError("Both diff and file config provided, specify one")
     outpath = Path(cfg.output.path)
     if not outpath.exists():
         outpath.mkdir(parents=True)
-    if cfg.diff:
+    if isinstance(cfg.input, DiffConfig):
         logger.info(f"Found diff config")
         history = FileHistory.from_repo(
             cfg.diff.file, repo_dir=cfg.diff.repo, rev=cfg.diff.rev
@@ -118,14 +140,11 @@ def exec_config(cfg: Config):
         for commit_idx, (commit, seq_iter) in enumerate(history.sequence_iter):
             clip_id = f"{commit_idx:03d}-" + commit.summary.replace(" ", "-").lower()
             tmp_dir = outpath / clip_id
-            logger.info(f"Creating assets for {clip_id}")
             create_temporary_assets(tmp_dir, seq_iter, cfg)
-            logger.info(f"Sorting and exporting assets for {clip_id}")
             pngs = [x for x in tmp_dir.iterdir() if x.suffix == ".png"]
             process_output(cfg, pngs, outpath, prefix=clip_id)
-            logger.info(f"Cleaning up temporary assets for {clip_id}")
             rmtree(tmp_dir)
-    elif cfg.file:
+    elif isinstance(cfg.input, FileConfig):
         logger.info(f"Found file config")
         with open(cfg.file.src, "r") as f:
             seq_a = f.read()
@@ -135,3 +154,14 @@ def exec_config(cfg: Config):
         create_temporary_assets(tmp_dir, generate_text_iter(seq_a, seq_b), cfg)
         pngs = [x for x in tmp_dir.iterdir() if x.suffix == ".png"]
         process_output(cfg, pngs, outpath)
+        rmtree(tmp_dir)
+    elif isinstance(cfg.input, CmdConfig):
+        logger.info(f"Found cmd config")
+        with open(cfg.cmd.logfile, "r") as f:
+            cmd_log = f.read()
+        seq_iter = generate_cmd_iter(cfg.cmd.cmd, cmd_log, cfg.cmd.logline_display, cfg.cmd.host_line)
+        tmp_dir = outpath / ".tmp"
+        create_temporary_assets(tmp_dir, seq_iter, cfg)
+        pngs = [x for x in tmp_dir.iterdir() if x.suffix == ".png"]
+        process_output(cfg, pngs, outpath)
+        rmtree(tmp_dir)

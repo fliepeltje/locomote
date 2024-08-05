@@ -4,3 +4,5 @@ __pycache__/
 hack.py
 .output/
 .input/
+.ruff_cache/
+example.log
