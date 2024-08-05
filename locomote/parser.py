@@ -3,6 +3,7 @@ from difflib import ndiff
 
 from typing import Literal
 
+
 @dataclass
 class Segment:
     op: Literal["+", "-", " "]
@@ -20,9 +21,9 @@ class Segment:
 
     def __call__(self, sequence: str) -> str:
         if self.op == "+":
-            return sequence[:self.start] + self.content + sequence[self.start:]
+            return sequence[: self.start] + self.content + sequence[self.start :]
         elif self.op == "-":
-            return sequence[:self.start] + sequence[self.start+len(self.content):]
+            return sequence[: self.start] + sequence[self.start + len(self.content) :]
         else:
             return sequence
 
@@ -41,18 +42,20 @@ class Segment:
                 cursor += len(segment.content)
             segments.append(segment)
         return segments
-    
+
     @classmethod
     def from_sequences(
-            cls, 
-            seq_old: str, 
-            seq_new: str,
-            scope: Literal["doc", "line", "word"] = "doc",
-            cursor: int = 0
-        ) -> list["Segment"]:
+        cls,
+        seq_old: str,
+        seq_new: str,
+        scope: Literal["doc", "line", "word"] = "doc",
+        cursor: int = 0,
+    ) -> list["Segment"]:
         match scope:
             case "doc":
-                diffs = ndiff(seq_old.splitlines(keepends=True), seq_new.splitlines(keepends=True))
+                diffs = ndiff(
+                    seq_old.splitlines(keepends=True), seq_new.splitlines(keepends=True)
+                )
                 segments = cls.from_diffs(diffs, cursor)
                 segments = cls.resolve_segments(segments, "line")
                 return segments
@@ -71,7 +74,9 @@ class Segment:
                 return segments
 
     @staticmethod
-    def resolve_segments(segments: list["Segment"], scope: Literal["line", "word"]) -> list["Segment"]:
+    def resolve_segments(
+        segments: list["Segment"], scope: Literal["line", "word"]
+    ) -> list["Segment"]:
         resolved = []
         for segment in segments:
             if segment.op == " ":
@@ -79,20 +84,27 @@ class Segment:
             elif segment.op == "-":
                 if resolved and resolved[-1].op == "-":
                     old = resolved.pop()
-                    resolved.append(Segment("-", old.content + segment.content, old.start))
+                    resolved.append(
+                        Segment("-", old.content + segment.content, old.start)
+                    )
                 else:
                     resolved.append(segment)
             else:
-                if resolved and resolved[-1].op == "-" and resolved[-1].start == segment.start:
+                if (
+                    resolved
+                    and resolved[-1].op == "-"
+                    and resolved[-1].start == segment.start
+                ):
                     old = resolved.pop()
                     seq_old, seq_new = old.content, segment.content
-                    resolved += Segment.from_sequences(seq_old, seq_new, scope, old.start)
+                    resolved += Segment.from_sequences(
+                        seq_old, seq_new, scope, old.start
+                    )
                 elif resolved and resolved[-1].op == "+":
                     old = resolved.pop()
-                    resolved.append(Segment("+", old.content + segment.content, old.start))
+                    resolved.append(
+                        Segment("+", old.content + segment.content, old.start)
+                    )
                 else:
                     resolved.append(segment)
         return resolved
-    
-    
-        

@@ -13,7 +13,7 @@ def test_segment_from_diffs():
     diffs = [
         "- from fastapi import FastAPI, Request\n",
         "+ import os\n",
-        "  from fastapi import FastAPI\n"
+        "  from fastapi import FastAPI\n",
     ]
     segments = Segment.from_diffs(diffs, 0)
     assert len(segments) == 3
@@ -34,14 +34,18 @@ def test_segment_call():
 from fastapi import FastAPI, Response
 """.strip()
     res = segment(seq_old)
-    assert res == """
+    assert (
+        res
+        == """
 import os
 from fastapi import FastAPI, Response
 """.strip()
+    )
 
     segment = Segment("-", "from fastapi", 0)
     seq_old = """from fastapi import FastAPI, Response"""
     assert segment(seq_old) == """ import FastAPI, Response"""
+
 
 def test_segment_from_sequences():
     seq_old = """
@@ -63,4 +67,3 @@ foo = "bar"
     for seg in char_mods:
         res = seg(res)
     assert res == seq_new
-    
