@@ -146,8 +146,11 @@ def exec_config(cfg: Config):
             rmtree(tmp_dir)
     elif isinstance(cfg.input, FileConfig):
         logger.info(f"Found file config")
-        with open(cfg.file.src, "r") as f:
-            seq_a = f.read()
+        if cfg.file.src:
+            with open(cfg.file.src, "r") as f:
+                seq_a = f.read()
+        else:
+            seq_a = ""
         with open(cfg.file.dst, "r") as f:
             seq_b = f.read()
         tmp_dir = outpath / ".tmp"

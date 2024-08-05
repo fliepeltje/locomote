@@ -1,7 +1,7 @@
-from dataclasses import dataclass, fields, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from dacite import from_dict
-from tomllib import load
+from toml import load
 from typing import Literal
 
 
@@ -34,21 +34,21 @@ class OutputConfig:
 class DiffConfig:
     file: str
     lang: str | None = None
-    rev: str | None = None
+    rev: str | None = None # specified as commitFrom..commitTo
     repo: str | None = None
 
 
 @dataclass
 class FileConfig:
-    src: str
     dst: str
+    src: str | None = None
     lang: str | None = None
     filename: str | None = None
     src_lang: str | None = None
 
     @property
     def file(self) -> str:
-        return self.src
+        return self.dst
 
 @dataclass
 class CmdConfig:
