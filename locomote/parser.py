@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from difflib import ndiff
 
+from tiktoken import encoding_for_model
+
 from typing import Literal
+
 
 
 @dataclass
@@ -9,12 +12,17 @@ class Segment:
     op: Literal["+", "-", " "]
     content: str
     start: int
-
-    def char_mods(self) -> list["Segment"]:
+    
+    def token_mods(self) -> list["Segment"]:
         segments = []
-        for idx, char in enumerate(self.content):
+        enc = encoding_for_model("gpt-4o")
+        tokens = enc.encode(self.content)
+        decoded = [enc.decode_single_token_bytes(x).decode() for x in tokens]
+        cursor = self.start
+        for token in decoded:
             if self.op == "+" or self.op == "-":
-                segments.append(Segment(self.op, char, self.start + idx))
+                segments.append(Segment(self.op, token, cursor))
+            cursor += len(token)
         if self.op == "-":
             return sorted(segments, key=lambda x: x.start, reverse=True)
         return segments

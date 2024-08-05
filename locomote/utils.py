@@ -21,7 +21,7 @@ def generate_text_iter(from_text: str, to_text: str) -> Iterator[str]:
     segments = Segment.from_sequences(from_text, to_text)
     text_modifiers = []
     for seg in segments:
-        text_modifiers += seg.char_mods()
+        text_modifiers += seg.token_mods()
     for mod in text_modifiers:
         from_text = mod(from_text)
         yield from_text
