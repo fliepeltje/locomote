@@ -78,6 +78,6 @@ class Config:
 
     @classmethod
     def from_toml(cls, cfg: Path) -> dict[str, "Config"]:
-        with open(cfg, "rb") as f:
+        with open(cfg, "r") as f:
             data = load(f)
         return {k: from_dict(data_class=cls, data=v) for k, v in data.items()}
