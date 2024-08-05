@@ -1,11 +1,7 @@
-import os
-from shutil import rmtree
 from pathlib import Path
-from typer import Typer, Option
+from typer import Typer
 from locomote.config import Config
-from locomote.utils import generate_text_iter, FileHistory, exec_config
-from typing import Optional
-from typing_extensions import Annotated
+from locomote.utils import exec_config
 
 app = Typer()
 

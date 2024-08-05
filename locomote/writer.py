@@ -1,12 +1,6 @@
-import os
-
 from PIL import Image, ImageDraw
 
-from pygments import highlight
-from pygments.lexers import get_lexer_for_filename, get_lexer_by_name
 from pygments.formatters import ImageFormatter
-
-from moviepy.video.io import ImageSequenceClip
 
 
 class CodeBlockFormatter(ImageFormatter):
@@ -106,37 +100,3 @@ class CodeBlockFormatter(ImageFormatter):
         self._draw_code(draw)
 
         im.save(outfile, self.image_format.upper())
-
-
-def pyg_writer(
-    code: str, outfile: str, filename: str | None = None, lang: str | None = None
-):
-    if not filename and not lang:
-        raise ValueError("Either filename or language must be provided")
-    lex = get_lexer_by_name(lang) if lang else get_lexer_for_filename(filename)
-    highlight(
-        code,
-        lex,
-        CodeBlockFormatter(
-            width=600,
-            height=400,
-            style="lightbulb",
-            line_numbers=False,
-            image_pad=40,
-            font_name="Hack Nerd Font",
-            filename=filename,
-        ),
-        outfile=outfile,
-    )
-
-
-def generate_pyg_sequence(pyg_asset_dir: str, out_file: str):
-    images = sorted(
-        [
-            pyg_asset_dir + f"/{f}"
-            for f in os.listdir(pyg_asset_dir)
-            if f.endswith(".png")
-        ]
-    )
-    clip = ImageSequenceClip.ImageSequenceClip(images, fps=10)
-    clip.write_videofile(out_file, logger=None)

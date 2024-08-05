@@ -1,6 +1,6 @@
 [my-file]
 output.pil.width = 700
-output.pil.height = 700
+output.pil.height = 300
 output.pil.font_size = 16
 output.path = "my-file-clip"
 diff.file = "my-file.py"
