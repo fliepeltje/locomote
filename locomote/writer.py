@@ -1,6 +1,6 @@
 import os
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 from pygments import highlight 
 from pygments.lexers import get_lexer_for_filename, get_lexer_by_name 

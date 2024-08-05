@@ -13,6 +13,7 @@ moviepy = "^1.0.3"
 click = "^8.1.7"
 typer = "^0.12.3"
 gitpython = "^3.1.43"
+dacite = "^1.8.1"
 
 
 [tool.poetry.group.dev.dependencies]
