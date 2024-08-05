@@ -134,4 +134,4 @@ def pyg_writer(
 def generate_pyg_sequence(pyg_asset_dir: str, out_file: str):
     images = sorted([pyg_asset_dir + f"/{f}" for f in os.listdir(pyg_asset_dir) if f.endswith(".png")])
     clip = ImageSequenceClip.ImageSequenceClip(images, fps=10)
-    clip.write_videofile(out_file)
+    clip.write_videofile(out_file, logger=None)
