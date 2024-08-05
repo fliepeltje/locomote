@@ -42,6 +42,10 @@ Create a clip for every commit associated to a file
 locomote config.example.toml my-file-diff
 ```
 
+
+https://github.com/user-attachments/assets/d4b46d5b-0e95-4029-ae75-5f0549ec1c53
+
+
 [![Diff Clip 1](examples/my-file-diff/000-add-makedirs-head.png)](examples/my-file-diff/000-add-makedirs-clip.mp4)
 [![Diff Clip 2](examples/my-file-diff/001-add-os-iter-head.png)](examples/my-file-diff/001-add-os-iter-clip.mp4)
 [![Diff Clip 3](examples/my-file-diff/002-add-pathlib-head.png)](examples/my-file-diff/002-add-pathlib-clip.mp4)
@@ -55,4 +59,4 @@ Create an animated output of your command
 locomote config.example.toml fly-apps-list
 ```
 
-[![File Clip](examples/fly-apps-list/tail.png)](examples/fly-apps-list/clip.mp4)
+[![File Clip](examples/fly-apps-list/tail.png)](https://github.com/user-attachments/assets/d4b46d5b-0e95-4029-ae75-5f0549ec1c53)
