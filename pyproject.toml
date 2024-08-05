@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "locomote"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Donatas Rasiukevicius <donatas@rasiukevicius.dev>"]
 readme = "README.md"
@@ -25,4 +25,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-locomote = "locomote.cli:app"
+locomote = "locomote:app"
