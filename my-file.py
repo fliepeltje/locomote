@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
-os.makedirs(".output", exist_ok=False)
+path = Path(".output")
+os.makedirs(str(path), exist_ok=True)
 
 for f in os.listdir(".tmp"):
     print(f)
