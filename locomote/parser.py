@@ -3,8 +3,7 @@ from difflib import ndiff
 
 from tiktoken import encoding_for_model
 
-from typing import Literal
-
+from typing import AsyncIterator, Literal
 
 
 @dataclass
@@ -12,7 +11,7 @@ class Segment:
     op: Literal["+", "-", " "]
     content: str
     start: int
-    
+
     def token_mods(self) -> list["Segment"]:
         segments = []
         enc = encoding_for_model("gpt-4o")
@@ -67,6 +66,12 @@ class Segment:
                 segments = cls.from_diffs(diffs, cursor)
                 segments = cls.resolve_segments(segments, "line")
                 return segments
+            case "newlines":
+                diffs = ndiff(
+                    seq_old.splitlines(keepends=True), seq_new.splitlines(keepends=True)
+                )
+                segments = cls.from_diffs(diffs, cursor)
+                return segments
             case "line":
                 old_split = [x + " " for x in seq_old.split(" ")]
                 old_split[-1] = old_split[-1][:-1]
@@ -116,3 +121,25 @@ class Segment:
                 else:
                     resolved.append(segment)
         return resolved
+
+
+async def generate_text_iter(
+    sequence_start: str, 
+    sequence_end: str,
+    speed: Literal["token", "newlines"] = "token"
+) -> AsyncIterator[str]:
+    yield sequence_start
+    if speed == "token":
+        segments = Segment.from_sequences(sequence_start, sequence_end)
+        for seg in segments:
+            for mod in seg.token_mods():
+                sequence_start = mod(sequence_start)
+                yield sequence_start
+    elif speed == "newlines":
+        segments = Segment.from_sequences(sequence_start, sequence_end, "newlines")
+        for seg in segments:
+            sequence_start = seg(sequence_start)
+            yield sequence_start
+    yield sequence_end
+
+
