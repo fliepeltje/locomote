@@ -16,6 +16,7 @@ gitpython = "^3.1.43"
 dacite = "^1.8.1"
 toml = "^0.10.2"
 tiktoken = "^0.7.0"
+numpy = "^2.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -26,4 +27,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-locomote = "locomote:app"
+locomote = "locomote.cli:app"
