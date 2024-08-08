@@ -26,7 +26,7 @@ class OutputCfg:
     font_size: int = 14
     style: str = "monokai"
     max_line_display: int | None = None
-    padding_horizontal: int = 60
+    padding_horizontal: int = 70
     padding_vertical: int = 40
 
     # Window Styling
@@ -163,6 +163,25 @@ class Cfg:
     @cached_property
     def char_box(self) -> tuple[int, int]:
         return self.default_font.getbbox("M")[2:4]
+    
+    @cached_property
+    def max_line_display(self) -> int | None:
+        if self.output.max_line_display:
+            return self.output.max_line_display
+        height = self.output.height or self.output.max_height
+        if not height:
+            return None
+        code_height = height - (self.output.padding_vertical * 2) - (self.output.margin * 2)
+        return code_height // self.spaced_char_height
+
+    @cached_property
+    def max_line_chars(self) -> int | None:
+        if not self.output.max_width and not self.output.width:
+            return None
+        max_width = self.output.width or self.output.max_width
+        max_code_width = max_width - self.output.padding_horizontal
+        max_line_chars = max_code_width // self.char_box[0]
+        return max_line_chars
 
     @cached_property
     def spaced_char_height(self) -> int:

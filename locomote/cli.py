@@ -44,7 +44,7 @@ async def cfg_sequences(cfg: Cfg) -> list[Sequence]:
             return [seq_cmd]
         with open(cfg.input.logfile) as f:
             seq_end = f.read()
-        seq_log = Sequence("", seq_end, out_lexer, "line", cfg.output.max_line_display)
+        seq_log = Sequence("", seq_end, out_lexer, "line", cfg.max_line_display, cfg.max_line_chars)
         return [seq_cmd, seq_log]
     elif isinstance(cfg.input, DiffCfg):
         return [

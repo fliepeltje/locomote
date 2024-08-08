@@ -80,6 +80,7 @@ class Sequence:
     lexer: Lexer
     speed: Speed = "token"
     max_line_display: int | None = None
+    max_line_chars: int | None = None
 
     @property
     def _start_widest_line(self) -> str:
@@ -104,7 +105,7 @@ class Sequence:
         )
 
     @property
-    def max_line_chars(self) -> int:
+    def max_seq_line_chars(self) -> int:
         return max(len(self._start_widest_line), len(self._end_widest_line))
 
     @property
@@ -138,6 +139,8 @@ class Sequence:
         return Diff.resolve(diffs)
 
     def width(self, cfg: Cfg) -> int:
+        if self.max_line_chars:
+            return self.max_line_chars * cfg.default_font.getbbox(" ")[2]
         return cfg.default_font.getbbox(self.seq_widest)[2]
 
     def height(self, cfg: Cfg) -> int:
@@ -145,7 +148,11 @@ class Sequence:
 
     def display(self, seq: str) -> str:
         if self.max_line_display:
-            return "\n".join(seq.splitlines()[-self.max_line_display :])
+            seq = "\n".join(seq.splitlines()[-self.max_line_display :])
+        if self.max_line_chars:
+            seq = "\n".join(
+                line[:self.max_line_chars] for line in seq.splitlines()
+            )
         return seq
 
     def __iter__(self):

@@ -25,15 +25,14 @@ class Window:
         width = code_w + (2 * padding_w)
         if cfg.output.min_width and cfg.output.min_width > width:
             width = cfg.output.min_width
-        width = cfg.output.width or width
-        height = code_h + padding_h + ctl_h + offset_y
+        elif cfg.max_line_chars:
+            width = (cfg.max_line_chars * cfg.char_box[0]) + (2 * padding_w)
+        else:
+            width = code_w + (2 * padding_w)
+        height = code_h + padding_h + ctl_h
         if cfg.output.min_height and cfg.output.min_height > height:
             height = cfg.output.min_height
         height = cfg.output.height or height
-        if cfg.output.max_height and height > cfg.output.max_height:
-            raise ValueError("Height exceeds maximum height")
-        if cfg.output.max_width and width > cfg.output.max_width:
-            raise ValueError("Width exceeds maximum width")
         return cls(width, height, offset_x, offset_y, cfg.bg_color)
 
     async def __call__(self, draw: ImageDraw):
