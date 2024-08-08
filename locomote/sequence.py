@@ -9,9 +9,11 @@ from typing import Literal
 GptEnc = encoding_for_model("gpt-4o")
 Speed = Literal["token", "newline"]
 
+
 def get_tokens(seq: str) -> list[str]:
     tokens = GptEnc.encode(seq)
     return [GptEnc.decode_single_token_bytes(x).decode() for x in tokens]
+
 
 @dataclass
 class Diff:
@@ -37,15 +39,17 @@ class Diff:
             elif op == " ":
                 cursor += len(content)
         return diffs
-    
+
     def __call__(self, sequence: str) -> str:
         if self.add_content:
             seq = sequence[: self.cursor] + self.add_content + sequence[self.cursor :]
         elif self.rm_content:
-            seq = sequence[: self.cursor] + sequence[self.cursor + len(self.rm_content) :]
+            seq = (
+                sequence[: self.cursor] + sequence[self.cursor + len(self.rm_content) :]
+            )
         self.result = seq
         return seq
-    
+
     @staticmethod
     def resolve(diffs: list["Diff"]) -> list["Diff"]:
         resolved = []
@@ -55,11 +59,8 @@ class Diff:
                 deletes.append(diff)
                 continue
             if diff.rm_content and diff.add_content:
-                deletes.append(
-                    Diff(None, diff.rm_content, diff.cursor)
-                )
+                deletes.append(Diff(None, diff.rm_content, diff.cursor))
             if diff.add_content and deletes:
-                
                 del_offset = 0
                 del_diffs = []
                 for delete in deletes:
@@ -71,6 +72,7 @@ class Diff:
             resolved.append(diff)
         return resolved
 
+
 @dataclass
 class Sequence:
     start: str
@@ -78,7 +80,6 @@ class Sequence:
     lexer: Lexer
     speed: Speed = "token"
     max_line_display: int | None = None
-    
 
     @property
     def _start_widest_line(self) -> str:
@@ -98,7 +99,9 @@ class Sequence:
 
     @property
     def max_lines(self) -> int:
-        return self.max_line_display or max(self._start_line_count, self._end_line_count)
+        return self.max_line_display or max(
+            self._start_line_count, self._end_line_count
+        )
 
     @property
     def max_line_chars(self) -> int:
@@ -120,38 +123,39 @@ class Sequence:
     def line_diffs(self) -> list[Diff]:
         return Diff.from_ndiff(
             ndiff(
-                self.start.splitlines(keepends=True), 
-                self.end.splitlines(keepends=True)
-            ))
-    
+                self.start.splitlines(keepends=True), self.end.splitlines(keepends=True)
+            )
+        )
+
     @property
     def token_diffs(self) -> list[Diff]:
         diffs = []
         for diff in self.line_diffs:
             start_tokens = get_tokens(diff.rm_content or "")
             end_tokens = get_tokens(diff.add_content or "")
-            token_diffs = Diff.from_ndiff(
-                ndiff(start_tokens, end_tokens), diff.cursor)
+            token_diffs = Diff.from_ndiff(ndiff(start_tokens, end_tokens), diff.cursor)
             diffs += token_diffs
         return Diff.resolve(diffs)
-    
+
     def width(self, cfg: Cfg) -> int:
         return cfg.default_font.getbbox(self.seq_widest)[2]
 
     def height(self, cfg: Cfg) -> int:
         return self.max_lines * cfg.spaced_char_height
 
+    def display(self, seq: str) -> str:
+        if self.max_line_display:
+            return "\n".join(seq.splitlines()[-self.max_line_display :])
+        return seq
+
     def __iter__(self):
-        yield self.start
         seq = self.start
+        yield self.display(seq)
         if self.speed == "line":
             diffs = self.line_diffs
         elif self.speed == "token":
             diffs = self.token_diffs
         for diff in diffs:
             seq = diff(seq)
-            if not self.max_line_display:
-                yield seq
-            else:
-                yield "\n".join(seq.splitlines()[-self.max_line_display:])
-        yield self.end
+            yield self.display(seq)
+        yield self.display(self.end)

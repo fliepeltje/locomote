@@ -1,0 +1,41 @@
+[raw]
+    seq_start = ""
+    seq_end = "from os import path"
+    lang = "python3"
+
+[file]
+    seq_end_file = ".input/f_new.py"
+    seq_start_file = ".input/f_old.py"
+    lang = "python3"
+    # seq_start_file = "my-file-original.py"
+
+[diff]
+    file = "my-file.py"
+    rev_start = "3b468df"
+    rev_end = "887bef8"
+    lang = "python3"
+    # repo = "."
+
+[diff-range]
+    file = "my-file.py"
+    rev_range = "3b468df..887bef8"
+    lang = "python3"
+    # repo = "."
+
+[cmd]
+    command = """
+fly apps list
+\t--app my-app
+\t--json"""
+
+    # command = "fly apps list \\\n\t--app my-app \\\n\t--json"
+    prompt = "donatas@fly.io $ "
+
+[cmd-w-log]
+    command = """
+fly apps list
+\t--app my-app
+\t--json"""
+
+    logfile = "example.log"
+    prompt = "donatas@fly.io $ "

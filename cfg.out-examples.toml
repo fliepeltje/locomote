@@ -1,0 +1,38 @@
+[basic]
+    # Required
+    path = ".output/examples"
+    exports = ["stills", "clip"]
+
+    # Optional
+    # min_width = 600
+    # width = 0
+    # max_width = 0
+    # min_height = 400
+    # height = 0
+    # max_height = 0
+
+    # font_name = "Hack Nerd Font"
+    font_size = 20
+    # style = "monokai"
+    # indent_size = 4
+    line_spacing = 12
+    # window_title = "main.py"
+    max_line_display = 10
+    # padding_horizontal = 40
+    # padding_vertical = 40
+
+    # window_ctl = true
+    # window_title = ""
+    fps = 10
+
+
+[yt-code]
+    path = "code-assets/"
+    exports = ["stills", "clip"]
+    font_size = 22
+    line_spacing = 14
+    max_line_dsiplay = 20
+    min_width = 600
+    max_width = 1400
+    min_height = 400
+    max_height = 800

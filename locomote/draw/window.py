@@ -26,7 +26,7 @@ class Window:
         if cfg.output.min_width and cfg.output.min_width > width:
             width = cfg.output.min_width
         width = cfg.output.width or width
-        height = code_h + (2 * padding_h) + ctl_h
+        height = code_h + (padding_h * 2) + ctl_h
         if cfg.output.min_height and cfg.output.min_height > height:
             height = cfg.output.min_height
         height = cfg.output.height or height
@@ -61,7 +61,9 @@ class WindowCtl:
     @classmethod
     async def from_cfg(cls, cfg: Cfg, window_w: int) -> "WindowCtl":
         offset_x, offset_y = cfg.output.margin, cfg.output.margin
-        height = cfg.char_box[1] + cfg.output.line_spacing if cfg.output.window_ctl else 0
+        height = (
+            cfg.char_box[1] + cfg.output.line_spacing if cfg.output.window_ctl else 0
+        )
         width = window_w
         return cls(
             width,

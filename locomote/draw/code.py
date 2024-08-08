@@ -15,19 +15,24 @@ class LoC:
     cfg: Cfg
     lexer: Lexer
     offset_y: int = 0
-    
+
     @property
     def offset_x(self) -> int:
         return self.cfg.output.margin + self.cfg.output.padding_horizontal
-    
+
     @property
     def base_offset_y(self) -> int:
-        return self.offset_y + self.cfg.output.margin + self.cfg.output.padding_vertical + self.cfg.spaced_char_height
+        return (
+            self.offset_y
+            + self.cfg.output.margin
+            + self.cfg.output.padding_vertical
+            + self.cfg.spaced_char_height
+        )
 
     @property
     def font_manager(self) -> FontManager:
         return self.cfg.font_manager
-    
+
     @property
     def style(self) -> Style:
         return self.cfg.style
@@ -35,11 +40,11 @@ class LoC:
     @cached_property
     def token_styles(self) -> dict[str, str]:
         return dict(self.style)
-        
 
     async def __call__(self, draw: ImageDraw):
         offset_y, offset_x = self.base_offset_y, self.offset_x
-        for token, content in self.lexer.get_tokens(self.content):
+        tokens = self.lexer.get_tokens(self.content)
+        for token, content in tokens:
             if content == "\n":
                 offset_y += self.cfg.spaced_char_height
                 offset_x = self.offset_x
@@ -54,6 +59,8 @@ class LoC:
                 font=font,
                 fill=f"#{style.get("color", "fff")}",
             )
+            if content.endswith("\n"):
+                offset_y += self.cfg.spaced_char_height
+                offset_x = self.offset_x
+                continue
             offset_x += font.getbbox(content)[2]
-
-

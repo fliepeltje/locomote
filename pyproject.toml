@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "locomote"
-version = "0.1.3"
+version = "0.2.0"
 description = ""
 authors = ["Donatas Rasiukevicius <donatas@rasiukevicius.dev>"]
 readme = "README.md"
@@ -17,6 +17,8 @@ dacite = "^1.8.1"
 toml = "^0.10.2"
 tiktoken = "^0.7.0"
 numpy = "^2.0.1"
+click-extra = "^4.9.0"
+pygments-ansi-color = "^0.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
