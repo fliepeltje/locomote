@@ -18,8 +18,7 @@
 [cmd]
     command = "fly apps list"
     logfile = "example.log"
-    host_ctx = "donatas@fly ~"
-    lang = "bash"
+    host_ctx = "donatas@fly $ "
 
 [basic]
     # Required

@@ -13,6 +13,7 @@ from locomote.config import Cfg
 class LoC:
     content: str
     cfg: Cfg
+    lexer: Lexer
     offset_y: int = 0
     
     @property
@@ -30,14 +31,11 @@ class LoC:
     @property
     def style(self) -> Style:
         return self.cfg.style
-    
-    @property
-    def lexer(self) -> Lexer:
-        return self.cfg.lexer
 
     @cached_property
     def token_styles(self) -> dict[str, str]:
         return dict(self.style)
+        
 
     async def __call__(self, draw: ImageDraw):
         offset_y, offset_x = self.base_offset_y, self.offset_x

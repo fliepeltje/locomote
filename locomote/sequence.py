@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from difflib import ndiff
 from locomote.config import Cfg
 from tiktoken import encoding_for_model
+from pygments.lexer import Lexer
 
 from typing import Literal
 
@@ -74,7 +75,10 @@ class Diff:
 class Sequence:
     start: str
     end: str
+    lexer: Lexer
     speed: Speed = "token"
+    max_line_display: int | None = None
+    
 
     @property
     def _start_widest_line(self) -> str:
@@ -94,7 +98,7 @@ class Sequence:
 
     @property
     def max_lines(self) -> int:
-        return max(self._start_line_count, self._end_line_count)
+        return self.max_line_display or max(self._start_line_count, self._end_line_count)
 
     @property
     def max_line_chars(self) -> int:
@@ -146,5 +150,8 @@ class Sequence:
             diffs = self.token_diffs
         for diff in diffs:
             seq = diff(seq)
-            yield seq
+            if not self.max_line_display:
+                yield seq
+            else:
+                yield "\n".join(seq.splitlines()[-self.max_line_display:])
         yield self.end

@@ -21,10 +21,11 @@ async def initialize_base_still(cfg: Cfg, code_w: int, code_h: int) -> ImageT:
     return image
 
 
-async def create_still(base: ImageT, loc: LoC) -> ImageT:
+async def create_still(base: ImageT, loc: list[LoC]) -> ImageT:
     img = base.copy()
     draw = ImageDraw.Draw(img)
-    await loc(draw)
+    for l in loc:
+        await l(draw)
     return img
 
 

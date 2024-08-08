@@ -1,22 +1,24 @@
 import typer
 import toml
 import asyncio
-from PIL.Image import Image
 from dacite import from_dict
 from pathlib import Path
-from locomote.config import Cfg, RawCfg, FileCfg
+from pygments.lexers import get_lexer_by_name
+from locomote.config import Cfg, CmdCfg, RawCfg, FileCfg
 from locomote.draw.code import LoC
 from locomote.sequence import Sequence
 from locomote.assets import initialize_base_still, create_still, create_clip
 
 
-from typing_extensions import Annotated, AsyncIterator, Literal
+from typing_extensions import Annotated
 
 app = typer.Typer()
 
-async def exec_cfg(cfg: Cfg):
+async def cfg_sequences(cfg: Cfg) -> list[Sequence]:
     if isinstance(cfg.input, RawCfg):
-        sequence = Sequence(cfg.input.seq_start, cfg.input.seq_end, cfg.output.speed)
+        return [
+            Sequence(cfg.input.seq_start, cfg.input.seq_end, cfg.lexer, cfg.output.speed)
+        ]
     elif isinstance(cfg.input, FileCfg):
         with open(cfg.input.seq_end_file) as f:
             seq_end = f.read()
@@ -25,11 +27,40 @@ async def exec_cfg(cfg: Cfg):
                 seq_start = f.read()
         else:
             seq_start = ""
-        sequence = Sequence(seq_start, seq_end, cfg.output.speed)
-    code_w, code_h = sequence.width(cfg), sequence.height(cfg)
+        return [Sequence(seq_start, seq_end, cfg.lexer, cfg.output.speed)]
+    elif isinstance(cfg.input, CmdCfg):
+        ctx = cfg.input.host_ctx or ""
+        with open(cfg.input.logfile) as f:
+            seq_end = f.read()
+        bash_lexer = get_lexer_by_name("bash")
+        out_lexer = get_lexer_by_name("output")
+        seq_cmd = Sequence(ctx, ctx + cfg.input.command + "\n", bash_lexer, "token")
+        seq_log = Sequence("", seq_end, out_lexer, "line")
+        return [seq_cmd, seq_log]
+    
+async def code_box(cfg: Cfg, sequences: list[Sequence]) -> tuple[int, int]:
+    code_w = max([sequence.width(cfg) for sequence in sequences])
+    code_h = sum([sequence.height(cfg) for sequence in sequences])
+    return code_w, code_h
+
+async def locs_from_sequences(cfg: Cfg, sequences: list[Sequence]) -> list[list[LoC]]:
+    locs_arrays = []
+    offset = 0
+    stored = []
+    for sequence in sequences:
+        seq_locs = [LoC(seq, cfg, sequence.lexer, offset) for seq in sequence]
+        for loc in seq_locs:
+            locs_arrays.append(stored + [loc])
+        stored.append(seq_locs[-1])
+        offset += sequence.height(cfg)
+    return locs_arrays
+
+async def exec_cfg(cfg: Cfg):
+    sequences = await cfg_sequences(cfg)
+    code_w, code_h = await code_box(cfg, sequences)
     base_img = await initialize_base_still(cfg, code_w, code_h)
-    locs = [LoC(x, cfg) for x in sequence]
-    images = [await create_still(base_img, loc) for loc in locs]
+    locs = await locs_from_sequences(cfg, sequences)
+    images = [await create_still(base_img, loclist) for loclist in locs]
     outpath = Path(cfg.output.path)
     if not outpath.exists():
         outpath.mkdir(parents=True)
@@ -47,7 +78,6 @@ async def exec_parallel(cfgs: list[Cfg]):
     async with asyncio.TaskGroup() as tg:
         for cfg in cfgs:
             tg.create_task(exec_cfg(cfg))
-
 
 
 @app.command()
