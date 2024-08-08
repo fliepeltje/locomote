@@ -15,7 +15,7 @@
     font_size = 20
     # style = "monokai"
     # indent_size = 4
-    line_spacing = 12
+    # line_spacing = 12
     # window_title = "main.py"
     max_line_display = 10
     # padding_horizontal = 40
@@ -34,5 +34,5 @@
     max_line_dsiplay = 20
     min_width = 600
     max_width = 1400
-    min_height = 400
+    # min_height = 400
     max_height = 800

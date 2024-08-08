@@ -20,13 +20,13 @@ class Window:
             cfg.output.padding_vertical,
         )
         ctl_h = (
-            cfg.char_box[1] + cfg.output.line_spacing if cfg.output.window_ctl else 0
+            cfg.spaced_char_height if cfg.output.window_ctl else 0
         )
         width = code_w + (2 * padding_w)
         if cfg.output.min_width and cfg.output.min_width > width:
             width = cfg.output.min_width
         width = cfg.output.width or width
-        height = code_h + (padding_h * 2) + ctl_h
+        height = code_h + padding_h + ctl_h + offset_y
         if cfg.output.min_height and cfg.output.min_height > height:
             height = cfg.output.min_height
         height = cfg.output.height or height
@@ -41,8 +41,8 @@ class Window:
             (
                 self.offset_x,
                 self.offset_y,
-                self.offset_x + self.width,
-                self.offset_y + self.height,
+                self.offset_y + self.width,
+                self.height,
             ),
             fill=self.color,
             radius=10,
@@ -62,7 +62,7 @@ class WindowCtl:
     async def from_cfg(cls, cfg: Cfg, window_w: int) -> "WindowCtl":
         offset_x, offset_y = cfg.output.margin, cfg.output.margin
         height = (
-            cfg.char_box[1] + cfg.output.line_spacing if cfg.output.window_ctl else 0
+            cfg.spaced_char_height if cfg.output.window_ctl else 0
         )
         width = window_w
         return cls(
@@ -75,7 +75,7 @@ class WindowCtl:
         )
 
     async def __call__(self, draw: ImageDraw):
-        circle_margin_h = 5
+        circle_margin_h = 4
         circle_margin_w = 10
         radius = (self.height // 2) - (circle_margin_h * 2)
         circle_w = radius * 2

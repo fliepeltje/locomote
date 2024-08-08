@@ -25,7 +25,6 @@ class LoC:
         return (
             self.offset_y
             + self.cfg.output.margin
-            + self.cfg.output.padding_vertical
             + self.cfg.spaced_char_height
         )
 
@@ -43,6 +42,8 @@ class LoC:
 
     async def __call__(self, draw: ImageDraw):
         offset_y, offset_x = self.base_offset_y, self.offset_x
+        if self.cfg.output.window_ctl:
+            offset_y += self.cfg.spaced_char_height
         tokens = self.lexer.get_tokens(self.content)
         for token, content in tokens:
             if content == "\n":

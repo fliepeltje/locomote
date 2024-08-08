@@ -22,11 +22,9 @@ class OutputCfg:
     max_height: int | None = None
 
     # Code Styling
-    font_name: str = "Hack Nerd Font"
+    font_name: str = "JetBrainsMono Nerd Font"
     font_size: int = 14
     style: str = "monokai"
-    indent_size: int = 2
-    line_spacing: int = 5
     max_line_display: int | None = None
     padding_horizontal: int = 60
     padding_vertical: int = 40
@@ -168,4 +166,5 @@ class Cfg:
 
     @cached_property
     def spaced_char_height(self) -> int:
-        return self.char_box[1] + self.output.line_spacing
+        line_spacing = 10
+        return self.char_box[1] + line_spacing
