@@ -17,7 +17,7 @@
     # indent_size = 4
     # line_spacing = 12
     # window_title = "main.py"
-    max_line_display = 15
+    max_line_display = 10
     max_width = 500
     # padding_horizontal = 40
     # padding_vertical = 40
@@ -37,19 +37,27 @@
     # min_height = 400
     max_height = 800
 
-[cmd-out-600x800]
-    path = ".output/examples"
+[cmd-out-vertical-lg]
+    path = "locomotes/"
     # path = "locomotes/"
     exports = ["clip"]
-    font_size = 18
-    width = 600
-    height = 800
+    font_size = 20
+    max_line_display = 28
+    width = 1000
+    height = 900
+
+[cmd-flex]
+    path = "locomotes/"
+    exports = ["gif"]
+    font_size = 20
+
 
 [cmd-out-1000x600]
-    path = ".output/examples"
-    # path = "locomotes/"
-    exports = ["clip"]
+    # path = ".output/examples"
+    path = "locomotes/"
+    exports = ["stills"]
     font_size = 18
+    max_line_display = 20
     width = 800
     height = 600
 

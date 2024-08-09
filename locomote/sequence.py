@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from difflib import ndiff
-from locomote.config import Cfg
 from tiktoken import encoding_for_model
-from pygments.lexer import Lexer
-
 from typing import Literal
 
 GptEnc = encoding_for_model("gpt-4o")
@@ -77,48 +74,9 @@ class Diff:
 class Sequence:
     start: str
     end: str
-    lexer: Lexer
     speed: Speed = "token"
     max_line_display: int | None = None
     max_line_chars: int | None = None
-
-    @property
-    def _start_widest_line(self) -> str:
-        return max(self.start.splitlines(), key=len) if self.start else ""
-
-    @property
-    def _end_widest_line(self) -> str:
-        return max(self.end.splitlines(), key=len) if self.end else ""
-
-    @property
-    def _start_line_count(self) -> int:
-        return len(self.start.splitlines())
-
-    @property
-    def _end_line_count(self) -> int:
-        return len(self.end.splitlines())
-
-    @property
-    def max_lines(self) -> int:
-        return self.max_line_display or max(
-            self._start_line_count, self._end_line_count
-        )
-
-    @property
-    def max_seq_line_chars(self) -> int:
-        return max(len(self._start_widest_line), len(self._end_widest_line))
-
-    @property
-    def seq_widest(self) -> str:
-        if len(self._start_widest_line) > len(self._end_widest_line):
-            return self._start_widest_line
-        return self._end_widest_line
-
-    @property
-    def seq_longest(self) -> str:
-        if self._start_line_count > self._end_line_count:
-            return self.start
-        return self.end
 
     @property
     def line_diffs(self) -> list[Diff]:
@@ -138,21 +96,25 @@ class Sequence:
             diffs += token_diffs
         return Diff.resolve(diffs)
 
-    def width(self, cfg: Cfg) -> int:
+    def width(self, char_width: int) -> int:
         if self.max_line_chars:
-            return self.max_line_chars * cfg.default_font.getbbox(" ")[2]
-        return cfg.default_font.getbbox(self.seq_widest)[2]
+            return self.max_line_chars * char_width
+        all_lines = self.start.splitlines() + self.end.splitlines()
+        longest_line_length = max([len(line) for line in all_lines])
+        return longest_line_length * char_width
 
-    def height(self, cfg: Cfg) -> int:
-        return self.max_lines * cfg.spaced_char_height
+    def height(self, char_height: int) -> int:
+        if self.max_line_display:
+            return self.max_line_display * char_height
+        start_height = len(self.start.splitlines()) * char_height
+        end_height = len(self.end.splitlines()) * char_height
+        return max(start_height, end_height)
 
     def display(self, seq: str) -> str:
         if self.max_line_display:
             seq = "\n".join(seq.splitlines()[-self.max_line_display :])
         if self.max_line_chars:
-            seq = "\n".join(
-                line[:self.max_line_chars] for line in seq.splitlines()
-            )
+            seq = "\n".join(line[: self.max_line_chars] for line in seq.splitlines())
         return seq
 
     def __iter__(self):

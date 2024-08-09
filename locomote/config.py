@@ -11,7 +11,7 @@ from pygments.formatters.img import FontManager
 @dataclass
 class OutputCfg:
     path: str
-    exports: list[Literal["clip", "stills"]]
+    exports: list[Literal["clip", "still", "gif"]]
 
     # Box limits
     min_width: int | None = None
@@ -25,8 +25,9 @@ class OutputCfg:
     font_name: str = "JetBrainsMono Nerd Font"
     font_size: int = 14
     style: str = "monokai"
+    line_wrap: int | None = None
     max_line_display: int | None = None
-    padding_horizontal: int = 80
+    padding_horizontal: int = 70
     padding_vertical: int = 40
 
     # Window Styling
@@ -148,9 +149,9 @@ class Cfg:
 
     @cached_property
     def font_manager(self) -> FontManager:
-        font_name = self.output.font_name
-        font_size = self.output.font_size
-        return FontManager(font_name=font_name, font_size=font_size)
+        return FontManager(
+            font_name=self.output.font_name, font_size=self.output.font_size
+        )
 
     @cached_property
     def bg_color(self) -> str:
@@ -161,29 +162,18 @@ class Cfg:
         return self.font_manager.get_font(False, False)
 
     @cached_property
-    def char_box(self) -> tuple[int, int]:
-        return self.default_font.getbbox("M")[2:4]
-    
+    def char_width(self) -> tuple[int, int]:
+        return self.default_font.getbbox("M")[2]
+
     @cached_property
     def max_line_display(self) -> int | None:
-        if self.output.max_line_display:
-            return self.output.max_line_display
-        height = self.output.height or self.output.max_height
-        if not height:
-            return None
-        code_height = height - (self.output.padding_vertical * 2) - (self.output.margin * 2)
-        return code_height // self.spaced_char_height
+        return self.output.max_line_display
 
     @cached_property
     def max_line_chars(self) -> int | None:
-        if not self.output.max_width and not self.output.width:
-            return None
-        max_width = self.output.width or self.output.max_width
-        max_code_width = max_width - self.output.padding_horizontal
-        max_line_chars = max_code_width // self.char_box[0]
-        return max_line_chars
+        return self.output.line_wrap
 
     @cached_property
-    def spaced_char_height(self) -> int:
-        line_spacing = 10
-        return self.char_box[1] + line_spacing
+    def line_height(self) -> int:
+        box = self.default_font.getbbox("M")
+        return box[1] + box[3]
