@@ -4,6 +4,7 @@ from functools import cached_property
 from pygments.formatters.img import FontManager
 from pygments.lexer import Lexer
 from pygments.style import Style
+from PIL import Image
 from PIL.ImageDraw import ImageDraw
 
 from locomote.config import Cfg
@@ -39,7 +40,7 @@ class LoC:
     @cached_property
     def token_styles(self) -> dict[str, str]:
         return dict(self.style)
-
+    
     async def __call__(self, draw: ImageDraw):
         offset_y, offset_x = self.base_offset_y, self.offset_x
         if self.cfg.output.window_ctl:

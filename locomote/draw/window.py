@@ -29,7 +29,7 @@ class Window:
             width = (cfg.max_line_chars * cfg.char_box[0]) + (2 * padding_w)
         else:
             width = code_w + (2 * padding_w)
-        height = code_h + padding_h + ctl_h
+        height = code_h + padding_h * 2 + ctl_h
         if cfg.output.min_height and cfg.output.min_height > height:
             height = cfg.output.min_height
         height = cfg.output.height or height

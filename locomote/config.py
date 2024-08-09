@@ -26,7 +26,7 @@ class OutputCfg:
     font_size: int = 14
     style: str = "monokai"
     max_line_display: int | None = None
-    padding_horizontal: int = 70
+    padding_horizontal: int = 80
     padding_vertical: int = 40
 
     # Window Styling

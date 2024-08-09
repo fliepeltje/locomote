@@ -37,10 +37,24 @@
     # min_height = 400
     max_height = 800
 
-[vertical-cmd-out]
+[cmd-out-600x800]
     path = ".output/examples"
     # path = "locomotes/"
     exports = ["clip"]
     font_size = 18
-    max_width = 600
+    width = 600
     height = 800
+
+[cmd-out-1000x600]
+    path = ".output/examples"
+    # path = "locomotes/"
+    exports = ["clip"]
+    font_size = 18
+    width = 800
+    height = 600
+
+[snippet-600]
+    path = ".output/examples"
+    exports = [ "clip"]
+    font_size = 18
+    width = 600

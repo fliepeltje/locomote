@@ -25,8 +25,8 @@
 [cmd]
     command = """
 fly apps list
-\t--app my-app
-\t--json"""
+\t  --app my-app
+\t  --json"""
 
     # command = "fly apps list \\\n\t--app my-app \\\n\t--json"
     prompt = "donatas@fly.io $ "
@@ -34,8 +34,8 @@ fly apps list
 [cmd-w-log]
     command = """
 fly apps list
-\t--app my-app
-\t--json"""
+\t     --app my-app
+\t     --json"""
 
     logfile = "example.log"
     prompt = "donatas@fly.io $ "
