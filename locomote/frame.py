@@ -109,7 +109,7 @@ async def code_img(
             (0, 0, 0, 0),
         )
         draw = ImageDraw(code_img)
-        await display(draw, code, width, height - offset_y)
+        await display(draw, code)
         image.paste(code_img, (0, offset_y))
 
         offset_y += code_img.height
