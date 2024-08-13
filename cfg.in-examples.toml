@@ -32,11 +32,15 @@ fly apps list
     # command = "fly apps list \\\n\t--app my-app \\\n\t--json"
     prompt = "donatas@fly.io $ "
 
-[cmd-w-log]
-    command = """
-fly apps list
-\t     --app my-app
-\t     --json"""
 
-    logfile = "example.log"
+[[multi.inputs]]
     prompt = "donatas@flyio $ "
+    command = "fly apps list"
+
+[[multi.inputs]]
+    file = "example.log"
+    max_lines = 10
+
+[[multi.inputs]]
+    prompt = "donatas@flyio $ "
+    command = "fly apps list --json"

@@ -6,7 +6,7 @@ from moviepy.editor import ImageSequenceClip
 from dacite import from_dict
 from pathlib import Path
 from pygments.lexers import get_lexer_by_name
-from locomote.config import Cfg, DiffCfg, DiffRangeCfg, CmdCfg, RawCfg, FileCfg
+from locomote.config import Cfg, DiffCfg, DiffRangeCfg, CmdCfg, RawCfg, FileCfg, ComposedCfg, LogFileCfg
 from locomote.sequence import Sequence
 from locomote.frame import window_img, window_ctl_img, code_img, still, CodeDisplay
 from PIL.Image import Image
@@ -34,7 +34,7 @@ async def cfg_sequences(cfg: Cfg) -> list[tuple[CodeDisplay, Sequence]]:
                 seq_start = f.read()
         else:
             seq_start = ""
-        seq = Sequence(seq_start, seq_end, cfg.lexer, cfg.output.speed)
+        seq = Sequence(seq_start, seq_end, cfg.output.speed)
         display = CodeDisplay(
             font_manager=cfg.font_manager,
             token_styles=cfg.token_styles,
@@ -53,6 +53,13 @@ async def cfg_sequences(cfg: Cfg) -> list[tuple[CodeDisplay, Sequence]]:
             line_height=cfg.line_height,
             lexer=cmd_lexer,
         )
+        cmd_base, _, _ = cfg.input.command.splitlines()[0].partition(" ")
+        command = cfg.input.command.replace("\n\t", " \\\n\t").expandtabs(
+            len(ctx + cmd_base) + 1
+        )
+        seq_cmd = Sequence(ctx, ctx + command)
+        return [(cmd_display, seq_cmd)]
+    elif isinstance(cfg.input, LogFileCfg):
         out_lexer = get_lexer_by_name("output")
         out_display = CodeDisplay(
             font_manager=cfg.font_manager,
@@ -61,23 +68,16 @@ async def cfg_sequences(cfg: Cfg) -> list[tuple[CodeDisplay, Sequence]]:
             line_height=cfg.line_height,
             lexer=out_lexer,
         )
-        cmd_base, _, _ = cfg.input.command.splitlines()[0].partition(" ")
-        command = cfg.input.command.replace("\n\t", " \\\n\t").expandtabs(
-            len(ctx + cmd_base) + 1
-        )
-        seq_cmd = Sequence(ctx, ctx + command)
-        if not cfg.input.logfile:
-            return [(cmd_display, seq_cmd)]
-        with open(cfg.input.logfile) as f:
+        with open(cfg.input.file) as f:
             seq_end = f.read()
         seq_log = Sequence(
             start="",
             end=seq_end,
             speed="line",
-            max_line_display=cfg.max_line_display,
+            max_line_display=cfg.input.max_lines,
             max_line_chars=cfg.max_line_chars,
         )
-        return [(cmd_display, seq_cmd), (out_display, seq_log)]
+        return [(out_display, seq_log)]
     elif isinstance(cfg.input, DiffCfg):
         seq = Sequence(cfg.input.seq_start, cfg.input.seq_end, cfg.output.speed)
         display = CodeDisplay(
@@ -88,6 +88,11 @@ async def cfg_sequences(cfg: Cfg) -> list[tuple[CodeDisplay, Sequence]]:
             style=cfg.style,
         )
         return [(display, seq)]
+    elif isinstance(cfg.input, ComposedCfg):
+        sequences = []
+        for input_cfg in cfg.input.inputs:
+            sequences += await cfg_sequences(Cfg(input=input_cfg, output=cfg.output))
+        return sequences
 
 
 async def content_blocks(

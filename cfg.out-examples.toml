@@ -55,11 +55,11 @@
 [cmd-out-1000x600]
     # path = ".output/examples"
     path = "locomotes/"
-    exports = ["stills"]
+    exports = ["still"]
     font_size = 18
     max_line_display = 20
     width = 800
-    height = 600
+    # height = 600
 
 [snippet-600]
     path = ".output/examples"

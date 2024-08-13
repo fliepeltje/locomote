@@ -125,13 +125,22 @@ class DiffRangeCfg:
 @dataclass
 class CmdCfg:
     command: str
-    logfile: str | None = None
     prompt: str | None = None
 
+@dataclass
+class LogFileCfg:
+    file: str
+    max_lines: int | None = None
+
+InputCfg = RawCfg | FileCfg | DiffCfg | CmdCfg | LogFileCfg
+
+@dataclass
+class ComposedCfg:
+    inputs: list[InputCfg]
 
 @dataclass
 class Cfg:
-    input: RawCfg | FileCfg | DiffCfg | CmdCfg | DiffRangeCfg
+    input: InputCfg | ComposedCfg | DiffRangeCfg
     output: OutputCfg
     name: str | None = None
 
