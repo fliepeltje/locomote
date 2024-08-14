@@ -189,21 +189,22 @@ async def exec_cfg(cfg: Cfg):
 
 @app.command()
 def run(
-    cfg_paths: list[Path],
-    inputs: Annotated[list[str], typer.Option("-i", "--inputs", help="Input configs")],
+    inputs: Annotated[list[Path], typer.Option("-i", "--inputs", help="Input configs")],
     outputs: Annotated[
-        list[str], typer.Option("-o", "--outputs", help="Output configs")
+        list[Path], typer.Option("-o", "--outputs", help="Output configs")
     ],
 ):
-    cfg_dict = {}
-    for cfg_path in cfg_paths:
-        with open(cfg_path) as f:
-            cfg_d = toml.load(f)
-        for key, val in cfg_d.items():
-            cfg_dict[key] = {**cfg_dict.get(key, {}), **val}
-    for in_cfg in inputs:
-        for out_cfg in outputs:
-            cfg_data = {"input": cfg_dict[in_cfg], "output": cfg_dict[out_cfg]}
+    in_cfgs = {}
+    out_cfgs = {}
+    for inp in inputs:
+        with open(inp) as f:
+            in_cfgs = {**in_cfgs, **toml.load(f)}
+    for out in outputs:
+        with open(out) as f:
+            out_cfgs = {**out_cfgs, **toml.load(f)}
+    for in_cfg in in_cfgs:
+        for out_cfg in out_cfgs:
+            cfg_data = {"input": in_cfg[in_cfg], "output": out_cfg[out_cfg]}
             cfg = from_dict(Cfg, cfg_data)
             if isinstance(cfg.input, DiffRangeCfg):
                 for idx, diff_cfg in enumerate(cfg.input.diff_cfgs):
