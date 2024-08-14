@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "locomote"
-version = "0.4.1"
+version = "0.4.2"
 description = ""
 authors = ["Donatas Rasiukevicius <donatas@rasiukevicius.dev>"]
 readme = "README.md"

@@ -202,15 +202,15 @@ def run(
     for out in outputs:
         with open(out) as f:
             out_cfgs = {**out_cfgs, **toml.load(f)}
-    for in_cfg in in_cfgs:
-        for out_cfg in out_cfgs:
-            cfg_data = {"input": in_cfg[in_cfg], "output": out_cfg[out_cfg]}
+    for in_key, in_cfg in in_cfgs.items():
+        for out_key, out_cfg in out_cfgs.items():
+            cfg_data = {"input": in_cfg, "output": out_cfg}
             cfg = from_dict(Cfg, cfg_data)
             if isinstance(cfg.input, DiffRangeCfg):
                 for idx, diff_cfg in enumerate(cfg.input.diff_cfgs):
                     new_cfg = Cfg(output=cfg.output, input=diff_cfg)
-                    new_cfg.name = f"{in_cfg}-{out_cfg}-{idx:03d}"
+                    new_cfg.name = f"{in_key}-{out_key}-{idx:03d}"
                     asyncio.run(exec_cfg(new_cfg))
             else:
-                cfg.name = f"{in_cfg}-{out_cfg}"
+                cfg.name = f"{in_key}-{out_key}"
                 asyncio.run(exec_cfg(cfg))
