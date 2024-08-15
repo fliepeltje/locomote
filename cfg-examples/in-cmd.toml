@@ -1,0 +1,3 @@
+[cmd]
+prompt = "donatas@fly.io $ "
+command = "cat .github/workflows/fly-deploy.yml"

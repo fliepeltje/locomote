@@ -1,0 +1,4 @@
+[to-clip]
+path = ".output/"
+exports = ["clip"]
+font_size = 18

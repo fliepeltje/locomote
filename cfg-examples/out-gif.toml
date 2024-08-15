@@ -1,0 +1,4 @@
+[gif]
+path = ".output/"
+exports = ["gif"]
+font_size = 18
