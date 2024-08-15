@@ -184,7 +184,13 @@ async def exec_cfg(cfg: Cfg):
             clip = ImageSequenceClip(
                 [np_array(img) for img in frames], fps=cfg.output.fps
             )
-        clip.write_gif(str(outpath / f"{cfg.name}.gif"), logger=None)
+        clip.write_gif(str(outpath / f"{cfg.name}.gif"), fps=10, logger=None)
+    if "webm" in cfg.output.exports:
+        if not clip:
+            clip = ImageSequenceClip(
+                [np_array(img) for img in frames], fps=cfg.output.fps
+            )
+        clip.write_videofile(str(outpath / f"{cfg.name}.webm"), audio=False, logger=None)
 
 
 @app.command()

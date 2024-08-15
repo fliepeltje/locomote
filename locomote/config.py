@@ -11,7 +11,7 @@ from pygments.formatters.img import FontManager
 @dataclass
 class OutputCfg:
     path: str
-    exports: list[Literal["clip", "still", "gif"]]
+    exports: list[Literal["clip", "still", "gif", "webm"]]
 
     # Box limits
     min_width: int | None = None
