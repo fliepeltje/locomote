@@ -2,13 +2,14 @@ import asyncio
 import typer
 import toml
 from numpy import array as np_array
-from moviepy.editor import ImageSequenceClip
+from moviepy.editor import ImageSequenceClip, CompositeVideoClip
 from dacite import from_dict
 from pathlib import Path
 from pygments.lexers import get_lexer_by_name
 from locomote.config import Cfg, DiffCfg, DiffRangeCfg, CmdCfg, RawCfg, FileCfg, ComposedCfg, LogFileCfg
 from locomote.sequence import Sequence
 from locomote.frame import window_img, window_ctl_img, code_img, still, CodeDisplay
+from PIL import Image as PILImage
 from PIL.Image import Image
 from typing_extensions import Annotated
 
@@ -170,21 +171,33 @@ async def exec_cfg(cfg: Cfg):
         )
         for code in code_layers
     ]
+    last_frame = frames[-1]
     outpath = Path(cfg.output.path)
     if not outpath.exists():
         outpath.mkdir(parents=True)
     clip = None
     if "clip" in cfg.output.exports:
-        clip = ImageSequenceClip([np_array(img) for img in frames], fps=cfg.output.fps)
+        bg_image = PILImage.new("RGBA", (last_frame.width, last_frame.height), "#71dd7c")
+        clip = ImageSequenceClip(
+            [np_array(img) for img in frames], 
+            fps=cfg.output.fps,
+        )
+        bg_np = np_array(bg_image)
+        bg_clip = ImageSequenceClip([bg_np for _ in frames], fps=cfg.output.fps)
+        clip = CompositeVideoClip([bg_clip, clip])
         clip.write_videofile(str(outpath / f"{cfg.name}.mp4"), logger=None)
     if "still" in cfg.output.exports:
-        frames[-1].save(outpath / f"{cfg.name}.png")
+        last_frame.save(outpath / f"{cfg.name}.png")
     if "gif" in cfg.output.exports:
         if not clip:
             clip = ImageSequenceClip(
-                [np_array(img) for img in frames], fps=cfg.output.fps
+                [np_array(img) for img in frames], 
+                fps=cfg.output.fps
             )
-        clip.write_gif(str(outpath / f"{cfg.name}.gif"), fps=10, logger=None)
+        clip.write_gif(str(outpath / f"{cfg.name}.gif"), 
+                        fps=cfg.output.fps, 
+                        logger=None,
+                    )
     if "webm" in cfg.output.exports:
         if not clip:
             clip = ImageSequenceClip(

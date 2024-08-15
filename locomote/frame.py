@@ -131,7 +131,7 @@ async def still(
             window.width + (margin * 2),
             window.height + (margin * 2),
         ),
-        bg_color,
+        (0, 0, 0, 0)
     )
     base.paste(window, (margin, margin), window)
     code_offset_y = margin + code_padding_y
